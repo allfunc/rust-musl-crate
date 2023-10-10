@@ -1,0 +1,4 @@
+repositoryName=rust-musl-crate
+repositoryOrgName=allfunc
+dockerImageName=rust-musl-crate
+dockerOrgName=allfunc
