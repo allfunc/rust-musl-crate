@@ -44,6 +44,6 @@ apt-get clean autoclean \
   && apt-get autoremove --yes \
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && rm -rf /var/lib/{apt,dpkg,cache,log}/ \
-  && rm -rf /tmp || exit 1
+  && rm -rf /tmp/* || exit 1
 
 exit 0
