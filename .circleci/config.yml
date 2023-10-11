@@ -98,12 +98,13 @@ jobs:
             docker buildx inspect --bootstrap
             echo "# ------ Start to Login ------ #"
             ./compile.sh login
-            echo "# ------ Get Rate Limit ------ #"
             ./compile.sh rate
+            echo "# ------ End to Login ------ #"
             docker buildx build ${BUILD_ARG} -f ${BUILD_FOLDER}/Dockerfile \
               --cache-to=type=inline,mode=all \
               --cache-from $IMAGE_NAME:${BUILD_VERSION} \
               --push \
+              --progress=plain \
               --platform linux/amd64,linux/arm64/v8 \
               -t $IMAGE_NAME:${BUILD_VERSION} ${LATEST_TAG} \
               ./${BUILD_FOLDER}
