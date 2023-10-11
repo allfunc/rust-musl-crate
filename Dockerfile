@@ -5,9 +5,16 @@ FROM ubuntu:20.04
 ARG VERSION
 
 ENV RUSTUP_HOME=/opt/rust/rustup \
-    PATH=/home/rust/.cargo/bin:/opt/rust/cargo/bin:/usr/local/musl/bin:$PATH
+  X86_64_UNKNOWN_LINUX_MUSL_OPENSSL_DIR=/usr/local/musl/ \
+  X86_64_UNKNOWN_LINUX_MUSL_OPENSSL_STATIC=1 \
+  PQ_LIB_STATIC_X86_64_UNKNOWN_LINUX_MUSL=1 \
+  PKG_CONFIG_ALLOW_CROSS=true \
+  PKG_CONFIG_ALL_STATIC=true \
+  LIBZ_SYS_STATIC=1 \
+  TARGET=musl \
+  PATH=/home/rust/.cargo/bin:/opt/rust/cargo/bin:/usr/local/musl/bin:$PATH
 
-# install package 
+# install package
 COPY ./install-packages.sh /usr/local/bin/install-packages
 RUN apt-get update \
   && INSTALL_VERSION=$VERSION INSTALL_TARGETPLATFORM=$TARGETPLATFORM install-packages \
