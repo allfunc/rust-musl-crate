@@ -26,6 +26,7 @@ install_sudo() {
   useradd rust --user-group --create-home --shell /bin/bash --groups sudo
   echo "%sudo   ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/nopasswd
   mkdir -p /home/rust/libs /home/rust/src /home/rust/.cargo
+  chown -R rust:rust /home/rust
   ln -s /opt/rust/cargo/config /home/rust/.cargo/config
 }
 
