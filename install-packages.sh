@@ -5,7 +5,7 @@
 ###
 
 CURL="curl ca-certificates"
-BUILD_DEPS="${CURL} build-essential pkgconf cmake musl-dev musl-tools libssl-dev linux-libc-dev"
+BUILD_DEPS="${CURL} build-essential pkgconf cmake musl-dev musl-tools libssl-dev linux-libc-dev sudo"
 
 echo "###"
 echo "# Will install build tool"
@@ -22,6 +22,13 @@ if [ -z "$TARGETPLATFORM" ]; then
   TARGETPLATFORM=$(uname -m)
 fi
 
+install_sudo() {
+  useradd rust --user-group --create-home --shell /bin/bash --groups sudo
+  echo "%sudo   ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/nopasswd
+  mkdir -p /home/rust/libs /home/rust/src /home/rust/.cargo
+  ln -s /opt/rust/cargo/config /home/rust/.cargo/config
+}
+
 install_rust() {
   curl -Lk https://sh.rustup.rs \
     | env CARGO_HOME=/opt/rust/cargo \
@@ -35,7 +42,8 @@ install_rust() {
 }
 
 echo "# ------ Building rust  ------ #"
-install_rust || exit 2
+install_rust || exit 3
+install_sudo || exit 2
 
 echo $(date +%Y%m%d%S)'-'$TARGETPLATFORM > /build_version
 

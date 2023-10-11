@@ -13,6 +13,9 @@ RUN apt-get update \
   && INSTALL_VERSION=$VERSION INSTALL_TARGETPLATFORM=$TARGETPLATFORM install-packages \
   && rm /usr/local/bin/install-packages
 
+USER rust
+WORKDIR /home/rust/src
+
 COPY ./docker/sbin /usr/local/sbin
 ENTRYPOINT ["/usr/local/sbin/entrypoint.sh"]
 CMD ["server"]
