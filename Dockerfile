@@ -12,7 +12,7 @@ ENV RUSTUP_HOME=/opt/rust/rustup \
   PKG_CONFIG_ALL_STATIC=true \
   LIBZ_SYS_STATIC=1 \
   TARGET=musl \
-  PATH=/home/rust/.cargo/bin:/opt/rust/cargo/bin:/usr/local/musl/bin:$PATH
+  PATH=/home/rust/.cargo/bin:/opt/rust/cargo/bin:/opt/musl/bin:/usr/local/musl/bin:$PATH
 
 # install package
 COPY ./install-packages.sh /usr/local/bin/install-packages
