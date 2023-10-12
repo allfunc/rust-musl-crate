@@ -6,12 +6,16 @@ ARG VERSION
 
 ENV RUSTUP_HOME=/opt/rust/rustup \
   X86_64_UNKNOWN_LINUX_MUSL_OPENSSL_DIR=/usr/local/musl/ \
+  AARCH64_UNKNOWN_LINUX_MUSL_OPENSSL_DIR=/usr/local/musl/ \
   X86_64_UNKNOWN_LINUX_MUSL_OPENSSL_STATIC=1 \
+  AARCH64_UNKNOWN_LINUX_MUSL_OPENSSL_STATIC=1 \
   PQ_LIB_STATIC_X86_64_UNKNOWN_LINUX_MUSL=1 \
+  PQ_LIB_STATIC_AARCH64_UNKNOWN_LINUX_MUSL=1 \
   PKG_CONFIG_ALLOW_CROSS=true \
   PKG_CONFIG_ALL_STATIC=true \
   LIBZ_SYS_STATIC=1 \
   TARGET=musl \
+  RUSTFLAGS="-C link-arg=/opt/musl/aarch64-linux-musl/lib/libc.a -C linker=rust-lld" \
   PATH=/home/rust/.cargo/bin:/opt/rust/cargo/bin:/opt/musl/bin:/usr/local/musl/bin:$PATH
 
 # install package

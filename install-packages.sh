@@ -5,7 +5,9 @@
 ###
 
 CURL="curl ca-certificates"
-BUILD_DEPS="${CURL} build-essential pkgconf cmake musl-dev musl-tools libssl-dev linux-libc-dev sudo"
+# https://crates.io/crates/mdbook-plantuml
+PLANTUML_DEPS="libssl-dev pkgconf libpq-dev"
+BUILD_DEPS="${CURL} ${PLANTUML_DEPS} build-essential cmake musl-dev musl-tools linux-libc-dev sudo"
 
 echo "###"
 echo "# Will install build tool"
@@ -22,6 +24,7 @@ if [ -z "$TARGETPLATFORM" ]; then
   TARGETPLATFORM=$(uname -m)
 fi
 OPENSSL_VERSION=1.1.1w
+ZLIB_VERSION=1.3
 
 install_aarch64_musl() {
   mkdir -p /opt/musl
@@ -46,6 +49,13 @@ install_openssl() {
   make install
 }
 
+install_zlib() {
+  curl -Lk "https://www.zlib.net/fossils/zlib-${ZLIB_VERSION}.tar.gz" | tar -xz -C /tmp/zlib --strip-components=1 && cd /tmp/zlib
+  ./configure --static --prefix=/usr/local/mus
+  make -j$(nproc)
+  make -j$(nproc) install
+}
+
 install_sudo() {
   useradd rust --user-group --create-home --shell /bin/bash --groups sudo
   echo "%sudo   ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/nopasswd
@@ -53,9 +63,17 @@ install_sudo() {
   chown -R rust:rust /home/rust
   cat > /home/rust/.cargo/config << EOF
 [build]
- # Target musl-libc by default when running Cargo.
- target = "${RUST_TARGET}"
+  # Target musl-libc by default when running Cargo.
+  target = "${RUST_TARGET}"
 EOF
+  if [ 'linux-aarch64' = "${OPENSSL_PLATFORM}" ]; then
+    cat >> /home/rust/.cargo/config << EOF
+[build.env]
+passthrough = [
+  "RUSTFLAGS",
+]
+EOF
+  fi
 }
 
 install_rust() {
@@ -71,11 +89,10 @@ install_rust() {
 case "$TARGETPLATFORM" in
   aarch64 | linux/arm64)
     export CC=aarch64-linux-musl-gcc
-    # OPENSSL_PLATFORM="linux-armv4"
     OPENSSL_PLATFORM="linux-aarch64"
+    RUST_TARGET="aarch64-unknown-linux-musl"
     echo "# ------ Building aarch64_musl ------ #"
     install_aarch64_musl
-    RUST_TARGET="aarch64-unknown-linux-musl"
     ;;
   *)
     export CC=musl-gcc
@@ -85,7 +102,10 @@ case "$TARGETPLATFORM" in
 esac
 
 echo "# ------ Building OpenSSL ------ #"
-install_openssl || exit 4
+install_openssl || exit 5 
+
+echo "# ------ Building ZLIB ------ #"
+install_zlib || exit 4
 
 echo "# ------ Building rust  ------ #"
 install_rust || exit 3
