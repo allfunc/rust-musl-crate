@@ -24,23 +24,11 @@ fi
 OPENSSL_VERSION=1.1.1w
 
 install_aarch64_musl() {
-  mkdir /opt/musl
+  mkdir -p /opt/musl
   curl -Lk "https://musl.cc/aarch64-linux-musl-cross.tgz" | tar -xz -C /opt/musl --strip-components=1
 }
 
 install_openssl() {
-  case "$TARGETPLATFORM" in
-    aarch64 | linux/arm64)
-      # OPENSSL_PLATFORM="linux-armv4"
-      OPENSSL_PLATFORM="linux-aarch64"
-      install_aarch64_musl
-      export CC=aarch64-linux-musl-gcc
-      ;;
-    *)
-      export CC=musl-gcc
-      OPENSSL_PLATFORM="linux-x86_64"
-      ;;
-  esac
   mkdir -p /usr/local/musl/include
   mkdir -p /tmp/openssl-src
   ln -s /usr/include/linux /usr/local/musl/include/linux \
@@ -66,7 +54,7 @@ install_sudo() {
   cat > /home/rust/.cargo/config << EOF
 [build]
  # Target musl-libc by default when running Cargo.
- target = "x86_64-unknown-linux-musl"
+ target = "${RUST_TARGET}"
 EOF
 }
 
@@ -77,8 +65,24 @@ install_rust() {
   env CARGO_HOME=/opt/rust/cargo \
     rustup component add rustfmt \
     && env CARGO_HOME=/opt/rust/cargo rustup component add clippy \
-    && env CARGO_HOME=/opt/rust/cargo rustup target add x86_64-unknown-linux-musl
+    && env CARGO_HOME=/opt/rust/cargo rustup target add ${RUST_TARGET}
 }
+
+case "$TARGETPLATFORM" in
+  aarch64 | linux/arm64)
+    export CC=aarch64-linux-musl-gcc
+    # OPENSSL_PLATFORM="linux-armv4"
+    OPENSSL_PLATFORM="linux-aarch64"
+    echo "# ------ Building aarch64_musl ------ #"
+    install_aarch64_musl
+    RUST_TARGET="aarch64-unknown-linux-musl"
+    ;;
+  *)
+    export CC=musl-gcc
+    OPENSSL_PLATFORM="linux-x86_64"
+    RUST_TARGET="x86_64-unknown-linux-musl"
+    ;;
+esac
 
 echo "# ------ Building OpenSSL ------ #"
 install_openssl || exit 4
