@@ -86,6 +86,10 @@ install_rust() {
     && env CARGO_HOME=/opt/rust/cargo rustup target add ${RUST_TARGET}
 }
 
+echo
+echo "# ------ TARGETPLATFORM: $TARGETPLATFORM ------ #"
+echo
+
 case "$TARGETPLATFORM" in
   aarch64 | linux/arm64)
     export CC=aarch64-linux-musl-gcc
