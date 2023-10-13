@@ -35,7 +35,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.18
+          version: 20.10.24
           docker_layer_caching: true
       - run:
           name: "Test with terratest"
@@ -85,7 +85,7 @@ jobs:
             IMAGE_NAME=$(DOCKER_HUB=1 support/remoteImage.sh)
             BUILD_VERSION=<< parameters.docker-tag >>
             BUILD_FOLDER=${VER_PREFIX}-<< parameters.docker-tag >>
-            BUILD_ARG=""
+            BUILD_ARG="--build-arg BUILDKIT_INLINE_CACHE=1"
             LATEST_TAG=""
             if [ "x$VERSION" == "x$BUILD_VERSION" ]; then
                 if [ -n "${ALT_VERSION}" ]; then
@@ -94,13 +94,13 @@ jobs:
                 LATEST_TAG="-t $IMAGE_NAME:latest"
             fi
             echo "Build ARGS: ${BUILD_ARG}"
-            docker pull $IMAGE_NAME:${BUILD_VERSION}
+            docker pull $IMAGE_NAME:${BUILD_VERSION} || true
             docker buildx inspect --bootstrap
             echo "# ------ Start to Login ------ #"
             ./compile.sh login
             ./compile.sh rate
             echo "# ------ End to Login ------ #"
-            docker buildx build ${BUILD_ARG} -f ${BUILD_FOLDER}/Dockerfile \
+            DOCKER_BUILDKIT=1 docker buildx build ${BUILD_ARG} -f ${BUILD_FOLDER}/Dockerfile \
               --cache-to=type=inline,mode=all \
               --cache-from $IMAGE_NAME:${BUILD_VERSION} \
               --push \
