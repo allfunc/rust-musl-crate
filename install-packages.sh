@@ -71,6 +71,7 @@ EOF
 [build.env]
 passthrough = [
   "RUSTFLAGS",
+  "AARCH64_UNKNOWN_LINUX_MUSL_RUSTFLAGS",
 ]
 EOF
   fi
