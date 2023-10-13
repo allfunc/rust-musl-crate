@@ -80,7 +80,7 @@ EOF
 install_rust() {
   curl -Lk https://sh.rustup.rs \
     | env CARGO_HOME=/opt/rust/cargo \
-      sh -s -- -y --default-toolchain stable --profile minimal --no-modify-path
+      sh -s -- -y --default-toolchain ${INSTALL_VERSION} --profile minimal --no-modify-path
   env CARGO_HOME=/opt/rust/cargo \
     rustup component add rustfmt \
     && env CARGO_HOME=/opt/rust/cargo rustup component add clippy \
