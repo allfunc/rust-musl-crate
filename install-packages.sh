@@ -28,7 +28,7 @@ ZLIB_VERSION=1.3
 
 install_aarch64_musl() {
   mkdir -p /opt/musl
-  curl -Lk "https://musl.cc/aarch64-linux-musl-cross.tgz" | tar -xz -C /opt/musl --strip-components=1
+  curl -Lk "https://musl.cc/aarch64-linux-musl-cross.tgz" | tar -xz -C /opt/musl --strip-components=1 || exit  51
 }
 
 install_openssl() {
@@ -66,15 +66,6 @@ install_sudo() {
   # Target musl-libc by default when running Cargo.
   target = "${RUST_TARGET}"
 EOF
-  if [ 'linux-aarch64' = "${OPENSSL_PLATFORM}" ]; then
-    cat >> /home/rust/.cargo/config << EOF
-[build.env]
-passthrough = [
-  "RUSTFLAGS",
-  "AARCH64_UNKNOWN_LINUX_MUSL_RUSTFLAGS",
-]
-EOF
-  fi
 }
 
 install_rust() {
