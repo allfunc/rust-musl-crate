@@ -7,7 +7,7 @@
 CURL="curl ca-certificates"
 # https://crates.io/crates/mdbook-plantuml
 PLANTUML_DEPS="libssl-dev pkgconf libpq-dev"
-BUILD_DEPS="${CURL} ${PLANTUML_DEPS} build-essential cmake musl-dev musl-tools linux-libc-dev sudo"
+BUILD_DEPS="${CURL} ${PLANTUML_DEPS} build-essential cmake musl-dev musl-tools linux-libc-dev sudo libc6-arm64-cross"
 
 echo "###"
 echo "# Will install build tool"
@@ -28,7 +28,7 @@ ZLIB_VERSION=1.3
 
 install_aarch64_musl() {
   mkdir -p /opt/musl
-  curl -Lk "https://musl.cc/aarch64-linux-musl-cross.tgz" | tar -xz -C /opt/musl --strip-components=1 || exit  51
+  curl -Lk "https://musl.cc/aarch64-linux-musl-cross.tgz" | tar -xz -C /opt/musl --strip-components=1 || exit 51
 }
 
 install_openssl() {
@@ -60,6 +60,8 @@ install_sudo() {
   useradd rust --user-group --create-home --shell /bin/bash --groups sudo
   echo "%sudo   ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/nopasswd
   mkdir -p /home/rust/libs /home/rust/src /home/rust/.cargo
+  mkdir -p /opt/cargo
+  chown -R rust:rust /opt/cargo
   chown -R rust:rust /home/rust
   cat > /home/rust/.cargo/config << EOF
 [build]
@@ -75,7 +77,7 @@ install_rust() {
   env CARGO_HOME=/opt/rust/cargo \
     rustup component add rustfmt \
     && env CARGO_HOME=/opt/rust/cargo rustup component add clippy \
-    && env CARGO_HOME=/opt/rust/cargo rustup target add ${RUST_TARGET}
+    && env CARGO_HOME=/opt/rust/cargo rustup target add ${RUST_TARGET} || exit 33
 }
 
 echo
@@ -98,7 +100,7 @@ case "$TARGETPLATFORM" in
 esac
 
 echo "# ------ Building OpenSSL ------ #"
-install_openssl || exit 5 
+install_openssl || exit 5
 
 echo "# ------ Building ZLIB ------ #"
 install_zlib || exit 4
@@ -114,6 +116,7 @@ apt-get clean autoclean \
   && apt-get autoremove --yes \
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && rm -rf /var/lib/{apt,dpkg,cache,log}/ \
+  && rm -rf rm -rf /opt/rust/cargo/registry/* \
   && rm -rf /tmp/* || exit 1
 
 exit 0
