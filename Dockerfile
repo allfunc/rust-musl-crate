@@ -15,7 +15,6 @@ ENV RUSTUP_HOME=/opt/rust/rustup \
   PKG_CONFIG_ALL_STATIC=true \
   LIBZ_SYS_STATIC=1 \
   TARGET=musl \
-  CARGO_TARGET_DIR=/opt/cargo \
   CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUSTFLAGS="-C link-arg=/opt/musl/aarch64-linux-musl/lib/libc.a -C linker=rust-lld" \
   PATH=/home/rust/.cargo/bin:/opt/rust/cargo/bin:/opt/musl/bin:/usr/local/musl/bin:$PATH
 
@@ -24,6 +23,8 @@ COPY ./install-packages.sh /usr/local/bin/install-packages
 RUN apt-get update \
   && INSTALL_VERSION=$VERSION INSTALL_TARGETPLATFORM=$TARGETPLATFORM install-packages \
   && rm /usr/local/bin/install-packages
+
+RUN env CARGO_HOME=/opt/rust/cargo cargo install cargo-local-install cargo-run-bin --no-default-features
 
 USER rust
 WORKDIR /home/rust/src
