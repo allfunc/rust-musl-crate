@@ -7,8 +7,12 @@
 CURL="curl ca-certificates"
 # https://crates.io/crates/mdbook-plantuml
 PLANTUML_DEPS="libssl-dev pkgconf libpq-dev"
-BUILD_DEPS="${CURL} ${PLANTUML_DEPS} build-essential cmake musl-dev musl-tools linux-libc-dev sudo libc6-arm64-cross"
+BUILD_DEPS="${CURL} ${PLANTUML_DEPS} build-essential cmake musl-dev musl-tools linux-libc-dev sudo"
 
+echo "# ------ TARGETPLATFORM: $TARGETPLATFORM ------ #"
+uname -a
+export
+echo
 echo "###"
 echo "# Will install build tool"
 echo "###"
@@ -23,12 +27,13 @@ ln -s "/usr/bin/g++" "/usr/bin/musl-g++" || exit 50
 if [ -z "$TARGETPLATFORM" ]; then
   TARGETPLATFORM=$(uname -m)
 fi
-OPENSSL_VERSION=1.1.1w
+OPENSSL_VERSION=1.1.1s
 ZLIB_VERSION=1.3
 
 install_aarch64_musl() {
+  echo "# ------ Building aarch64_musl ------ #"
   mkdir -p /opt/musl
-  curl -Lk "https://musl.cc/aarch64-linux-musl-cross.tgz" | tar -xz -C /opt/musl --strip-components=1 || exit 51
+  curl -Lk "https://musl.cc/aarch64-linux-musl-native.tgz" | tar -xz -C /opt/musl --strip-components=1 || exit 51
 }
 
 install_openssl() {
@@ -68,6 +73,15 @@ install_sudo() {
   # Target musl-libc by default when running Cargo.
   target = "${RUST_TARGET}"
 EOF
+  if [ 'linux-aarch64' = "${OPENSSL_PLATFORM}" ]; then
+    cat >> /home/rust/.cargo/config << EOF
+[build.env]
+passthrough = [
+  "RUSTFLAGS",
+  "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUSTFLAGS",
+]
+EOF
+  fi
 }
 
 install_rust() {
@@ -80,16 +94,11 @@ install_rust() {
     && env CARGO_HOME=/opt/rust/cargo rustup target add ${RUST_TARGET} || exit 33
 }
 
-echo
-echo "# ------ TARGETPLATFORM: $TARGETPLATFORM ------ #"
-echo
-
 case "$TARGETPLATFORM" in
   aarch64 | linux/arm64)
     export CC=aarch64-linux-musl-gcc
     OPENSSL_PLATFORM="linux-aarch64"
     RUST_TARGET="aarch64-unknown-linux-musl"
-    echo "# ------ Building aarch64_musl ------ #"
     install_aarch64_musl
     ;;
   *)
