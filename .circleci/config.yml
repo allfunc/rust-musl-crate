@@ -36,12 +36,10 @@ jobs:
   test:
     docker:
       - image: allfunc/terratest
-    resource_class: large
     parallelism: 4
     steps:
       - checkout
       - setup_remote_docker:
-          version: 20.10.24
           docker_layer_caching: true
       - run:
           name: "Test with terratest"
