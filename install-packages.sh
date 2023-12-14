@@ -33,14 +33,14 @@ ZLIB_VERSION=1.3
 install_aarch64_musl() {
   echo "# ------ Building aarch64_musl ------ #"
   mkdir -p /opt/musl
-  curl -Lk "https://musl.cc/aarch64-linux-musl-native.tgz" | tar -xz -C /opt/musl --strip-components=1 || exit 51
+  curl -Lk "https://musl.cc/aarch64-linux-musl-cross.tgz" | tar -xz -C /opt/musl --strip-components=1 || exit 51
 }
 
 install_openssl() {
   mkdir -p /usr/local/musl/include
   mkdir -p /tmp/openssl-src
   ln -s /usr/include/linux /usr/local/musl/include/linux \
-    && ln -s /usr/include/x86_64-linux-gnu/asm /usr/local/musl/include/asm \
+    && ln -s /usr/include/aarch64-linux-gnu/asm /usr/local/musl/include/asm \
     && ln -s /usr/include/asm-generic /usr/local/musl/include/asm-generic
   short_version="$(echo "$OPENSSL_VERSION" | sed s'/[a-z]$//')"
   (curl -Lk "https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz" \
