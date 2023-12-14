@@ -27,7 +27,7 @@ ln -s "/usr/bin/g++" "/usr/bin/musl-g++" || exit 50
 if [ -z "$TARGETPLATFORM" ]; then
   TARGETPLATFORM=$(uname -m)
 fi
-OPENSSL_VERSION=1.1.1s
+OPENSSL_VERSION=3.0.12
 ZLIB_VERSION=1.3
 
 install_aarch64_musl() {
@@ -40,7 +40,7 @@ install_openssl() {
   mkdir -p /usr/local/musl/include
   mkdir -p /tmp/openssl-src
   ln -s /usr/include/linux /usr/local/musl/include/linux \
-    && ln -s /usr/include/aarch64-linux-gnu/asm /usr/local/musl/include/asm \
+    && ln -s /usr/include/${OPENSSL_PLATFORM}-gnu/asm /usr/local/musl/include/asm \
     && ln -s /usr/include/asm-generic /usr/local/musl/include/asm-generic
   short_version="$(echo "$OPENSSL_VERSION" | sed s'/[a-z]$//')"
   (curl -Lk "https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz" \
@@ -48,10 +48,10 @@ install_openssl() {
     | tar -xz -C /tmp/openssl-src --strip-components=1 \
     && cd /tmp/openssl-src
 
-  ./Configure no-shared no-zlib -fPIC --prefix=/usr/local/musl -DOPENSSL_NO_SECURE_MEMORY $OPENSSL_PLATFORM
+  env C_INCLUDE_PATH=/usr/local/musl/include/ ./Configure no-shared no-zlib -fPIC --prefix=/usr/local/musl -DOPENSSL_NO_SECURE_MEMORY $OPENSSL_PLATFORM
   env C_INCLUDE_PATH=/usr/local/musl/include/ make depend
   env C_INCLUDE_PATH=/usr/local/musl/include/ make
-  make install
+  env C_INCLUDE_PATH=/usr/local/musl/include/ make install
 }
 
 install_zlib() {
@@ -96,13 +96,13 @@ install_rust() {
 
 case "$TARGETPLATFORM" in
   aarch64 | linux/arm64)
-    export CC=aarch64-linux-musl-gcc
+    export CC="aarch64-linux-musl-gcc"
     OPENSSL_PLATFORM="linux-aarch64"
     RUST_TARGET="aarch64-unknown-linux-musl"
     install_aarch64_musl
     ;;
   *)
-    export CC=musl-gcc
+    export CC="musl-gcc"
     OPENSSL_PLATFORM="linux-x86_64"
     RUST_TARGET="x86_64-unknown-linux-musl"
     ;;
