@@ -40,7 +40,7 @@ install_openssl() {
   mkdir -p /usr/local/musl/include
   mkdir -p /tmp/openssl-src
   ln -s /usr/include/linux /usr/local/musl/include/linux \
-    && ln -s /usr/include/${OPENSSL_PLATFORM}-gnu/asm /usr/local/musl/include/asm \
+    && ln -s /usr/include/${ASM_FOLDER}-gnu/asm /usr/local/musl/include/asm \
     && ln -s /usr/include/asm-generic /usr/local/musl/include/asm-generic
   short_version="$(echo "$OPENSSL_VERSION" | sed s'/[a-z]$//')"
   (curl -Lk "https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz" \
@@ -98,12 +98,14 @@ case "$TARGETPLATFORM" in
   aarch64 | linux/arm64)
     export CC="aarch64-linux-musl-gcc"
     OPENSSL_PLATFORM="linux-aarch64"
+    ASM_FOLDER="linux-aarch64"
     RUST_TARGET="aarch64-unknown-linux-musl"
     install_aarch64_musl
     ;;
   *)
     export CC="musl-gcc"
     OPENSSL_PLATFORM="linux-x86_64"
+    ASM_FOLDER="x86_64-linux"
     RUST_TARGET="x86_64-unknown-linux-musl"
     ;;
 esac
