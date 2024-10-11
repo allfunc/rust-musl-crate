@@ -31,5 +31,5 @@ func TestSmoke(t *testing.T) {
 	// website::tag::3:: Run the Docker image.
 	opts := &docker.RunOptions{Command: []string{"rustc", "--version"}}
 	output := docker.Run(t, tag, opts)
-	assert.Contains(t, output, "1.7")
+	assert.Contains(t, output, "1.8")
 }
