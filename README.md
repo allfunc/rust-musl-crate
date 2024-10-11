@@ -13,4 +13,3 @@
 
 -   Docker Image: allfunc/rust-musl-crate
 -   https://hub.docker.com/r/allfunc/rust-musl-crate
-
