@@ -68,7 +68,7 @@ install_sudo() {
   mkdir -p /opt/cargo
   chown -R rust:rust /opt/cargo
   chown -R rust:rust /home/rust
-  cat > /home/rust/.cargo/config << EOF
+  cat > /home/rust/.cargo/config.toml << EOF
 [build]
   # Target musl-libc by default when running Cargo.
   target = "${RUST_TARGET}"
