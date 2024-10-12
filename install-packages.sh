@@ -74,7 +74,7 @@ install_sudo() {
   target = "${RUST_TARGET}"
 EOF
   if [ 'linux-aarch64' = "${OPENSSL_PLATFORM}" ]; then
-    cat >> /home/rust/.cargo/config << EOF
+    cat >> /home/rust/.cargo/config.toml << EOF
 [build.env]
 passthrough = [
   "RUSTFLAGS",
