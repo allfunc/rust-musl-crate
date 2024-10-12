@@ -22,7 +22,7 @@ commands:
           name: Install Docker Buildx
           command: |
             mkdir -vp ~/.docker/cli-plugins/
-            curl --silent -L "https://github.com/docker/buildx/releases/download/<< parameters.buildx-version >>/buildx-<< parameters.buildx-version >>.linux-amd64" > ~/.docker/cli-plugins/docker-buildx
+            curl --silent -L "https://github.com/docker/buildx/releases/download/<< parameters.buildx-version >>/buildx-<< parameters.buildx-version >>.linux-arm64" > ~/.docker/cli-plugins/docker-buildx
             chmod a+x ~/.docker/cli-plugins/docker-buildx
             docker buildx create --name joyful-<< parameters.docker-tag >>- --append CIContext --use
 
@@ -36,6 +36,8 @@ jobs:
   test:
     docker:
       - image: allfunc/terratest
+    executor: docker-publisher
+    resource_class: large
     parallelism: 4
     steps:
       - checkout
