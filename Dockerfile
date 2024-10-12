@@ -30,7 +30,8 @@ RUN apt-get update \
   && INSTALL_VERSION=$VERSION INSTALL_TARGETPLATFORM=$TARGETPLATFORM install-packages \
   && rm /usr/local/bin/install-packages
 
-RUN env CARGO_HOME=/opt/rust/cargo cargo install cargo-local-install cargo-run-bin --no-default-features
+RUN env CARGO_HOME=/opt/rust/cargo cargo install cargo-local-install --no-default-features \
+  && env CARGO_HOME=/opt/rust/cargo cargo install cargo-run-bin --features="cli" --no-default-features
 
 # USER rust
 WORKDIR /home/rust/src
