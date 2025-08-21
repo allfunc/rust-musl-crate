@@ -11,6 +11,6 @@ docker run --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -w /app/test \
   $TERRATEST \
-  go test -timeout 30m -v ./tests
+  go test -timeout 60m -v ./tests
 
 

@@ -36,7 +36,6 @@ jobs:
   test:
     docker:
       - image: allfunc/terratest
-    executor: docker-publisher
     resource_class: large
     steps:
       - checkout
@@ -109,9 +108,9 @@ jobs:
             docker buildx build ${BUILD_ARG} -f ${BUILD_FOLDER}/Dockerfile \
               --cache-to=type=inline,mode=all \
               --cache-from $IMAGE_NAME:${BUILD_VERSION} \
-              --push \
               --progress=plain \
-              --platform linux/amd64,linux/arm64/v8 \
+              --push \
+              --platform linux/arm64/v8,linux/amd64 \
               -t $IMAGE_NAME:${BUILD_VERSION} ${LATEST_TAG} \
               ./${BUILD_FOLDER}
             ./compile.sh updateDockerHubDesc
