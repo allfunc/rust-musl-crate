@@ -67,22 +67,15 @@ install_sudo() {
   echo "%sudo   ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/nopasswd
   mkdir -p /home/rust/libs /home/rust/src /home/rust/.cargo
   mkdir -p /opt/cargo
-  chown -R rust:rust /opt/cargo
+  chown -R rust:rust /opt/cargo /opt/rust/cargo
   chown -R rust:rust /home/rust
   cat > /home/rust/.cargo/config.toml << EOF
 [build]
   # Target musl-libc by default when running Cargo.
+  # NOTE: cargo install ignores this setting; the Dockerfile writes
+  # $CARGO_HOME/config.toml per platform for cargo-run-bin consumers.
   target = "${RUST_TARGET}"
 EOF
-  if [ 'linux-aarch64' = "${OPENSSL_PLATFORM}" ]; then
-    cat >> /home/rust/.cargo/config.toml << EOF
-[build.env]
-passthrough = [
-  "RUSTFLAGS",
-  "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUSTFLAGS",
-]
-EOF
-  fi
 }
 
 install_rust() {

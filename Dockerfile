@@ -3,11 +3,13 @@ ARG VERSION=${VERSION:-[VERSION]}
 FROM ubuntu:26.04
 
 ARG VERSION
+ARG TARGETPLATFORM
 
 # CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUSTFLAGS="-C link-arg=/opt/musl/lib/libc.a"
 
 # https://docs.rs/openssl/latest/openssl/
 ENV RUSTUP_HOME=/opt/rust/rustup \
+  CARGO_HOME=/opt/rust/cargo \
   X6_64_UNKNOWN_LINUX_MUSL_OPENSSL_INCLUDE_DIR=/usr/local/musl/include \
   AARCH64_UNKNOWN_LINUX_MUSL_OPENSSL_INCLUDE_DIR=/usr/local/musl/include \
   X6_64_UNKNOWN_LINUX_MUSL_OPENSSL_LIB_DIR=/usr/local/musl/lib \
@@ -32,6 +34,14 @@ RUN apt-get update \
 
 RUN env CARGO_HOME=/opt/rust/cargo cargo install cargo-local-install --no-default-features \
   && env CARGO_HOME=/opt/rust/cargo cargo install cargo-run-bin --features="cli" --no-default-features
+
+# cargo install ignores [build] target from the cwd config, but it does read
+# $CARGO_HOME/config.toml; write the per-platform target there.
+RUN case "${TARGETPLATFORM:-$(dpkg --print-architecture)}" in \
+      linux/arm64* | arm64) TARGET=aarch64-unknown-linux-musl ;; \
+      *) TARGET=x86_64-unknown-linux-musl ;; \
+    esac \
+  && printf '[build]\n  target = "%s"\n' "$TARGET" > "$CARGO_HOME/config.toml"
 
 # USER rust
 WORKDIR /home/rust/src
