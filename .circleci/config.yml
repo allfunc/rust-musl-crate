@@ -40,7 +40,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - run:
           name: "Test with terratest"
           command: |
@@ -57,7 +57,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - run:
           name: Log time
           command: date
@@ -127,4 +127,4 @@ workflows:
             - test
           matrix:
             parameters:
-              docker-tag: ["stable"]
+              docker-tag: ["1.88.0"]

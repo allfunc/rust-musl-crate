@@ -55,8 +55,9 @@ install_openssl() {
 }
 
 install_zlib() {
+  mkdir -p /tmp/zlib
   curl -Lk "https://www.zlib.net/fossils/zlib-${ZLIB_VERSION}.tar.gz" | tar -xz -C /tmp/zlib --strip-components=1 && cd /tmp/zlib
-  ./configure --static --prefix=/usr/local/mus
+  ./configure --static --prefix=/usr/local/musl
   make -j$(nproc)
   make -j$(nproc) install
 }
@@ -96,9 +97,11 @@ install_rust() {
 
 case "$TARGETPLATFORM" in
   aarch64 | linux/arm64)
-    export CC="aarch64-linux-musl-gcc"
+    # Absolute path: the musl-tools package ships a glibc-gcc wrapper named
+    # aarch64-linux-musl-gcc in /usr/bin, which shadows the musl.cc toolchain.
+    export CC="/opt/musl/bin/aarch64-linux-musl-gcc"
     OPENSSL_PLATFORM="linux-aarch64"
-    ASM_FOLDER="linux-aarch64"
+    ASM_FOLDER="aarch64-linux"
     RUST_TARGET="aarch64-unknown-linux-musl"
     install_aarch64_musl
     ;;
